@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Подключение</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    :root {
+      --bg:#0f1115;
+      --card:#17191f;
+      --card-2:#1f222a;
+      --text:#fff;
+      --muted:#b8bcc8;
+      --yellow:#ffd60a;
+      --yellow-dark:#f5c400;
+      --green:#34c759;
+      --border:rgba(255,255,255,.08);
+      --shadow:0 24px 60px rgba(0,0,0,.35);
+      --radius:22px;
+    }
+
+    * { box-sizing:border-box; }
+
+    body {
+      margin:0;
+      font-family:Inter,Arial,sans-serif;
+      background:radial-gradient(circle at top left, rgba(255,214,10,.12), transparent 25%), var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    .wrap {
+      max-width:760px;
+      margin:0 auto;
+      padding:18px 14px 40px;
+    }
+
+    .hero {
+      background:linear-gradient(135deg, rgba(255,214,10,.18), rgba(255,214,10,.05));
+      border:1px solid rgba(255,214,10,.18);
+      border-radius:30px;
+      padding:24px;
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+    }
+
+    .brand {
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      background:rgba(0,0,0,.25);
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      margin-bottom:14px;
+    }
+
+    .brand-badge {
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      background:var(--yellow);
+      box-shadow:0 0 0 4px rgba(255,214,10,.15);
+    }
+
+    .hero h1 {
+      margin:0 0 8px;
+      font-size:30px;
+    }
+
+    .hero p {
+      margin:0;
+      color:#eef0f4;
+      line-height:1.5;
+      font-size:15px;
+    }
+
+    .progress-card,.card {
+      background:rgba(23,25,31,.92);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
+    .progress-card {
+      padding:14px 16px;
+      margin-bottom:14px;
+    }
+
+    .progress-top {
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:10px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .bar {
+      width:100%;
+      height:10px;
+      background:#242834;
+      border-radius:999px;
+      overflow:hidden;
+    }
+
+    .bar-fill {
+      width:12%;
+      height:100%;
+      background:linear-gradient(90deg,var(--yellow-dark),var(--yellow));
+      transition:width .25s ease;
+    }
+
+    .card { padding:20px; }
+
+    .step-title {
+      margin:0 0 6px;
+      font-size:24px;
+    }
+
+    .step-subtitle {
+      margin:0 0 18px;
+      color:var(--muted);
+      line-height:1.5;
+      font-size:15px;
+    }
+
+    .field { margin-bottom:16px; }
+
+    .field label {
+      display:block;
+      margin-bottom:8px;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .input,.select,.textarea,.filebox {
+      width:100%;
+      border-radius:18px;
+      border:1px solid var(--border);
+      background:var(--card-2);
+      color:var(--text);
+      padding:15px 16px;
+      font-size:15px;
+      outline:none;
+    }
+
+    .textarea {
+      min-height:120px;
+      resize:vertical;
+    }
+
+    .actions {
+      display:flex;
+      gap:10px;
+      margin-top:22px;
+      flex-wrap:wrap;
+    }
+
+    button {
+      border:none;
+      border-radius:18px;
+      padding:15px 18px;
+      font-size:15px;
+      cursor:pointer;
+    }
+
+    button:disabled {
+      opacity:0.6;
+      cursor:not-allowed;
+    }
+
+    .btn-primary {
+      background:linear-gradient(180deg,var(--yellow),var(--yellow-dark));
+      color:#101114;
+      font-weight:800;
+      flex:1;
+      min-width:150px;
+    }
+
+    .btn-secondary {
+      background:#2a2f3a;
+      color:#eef1f6;
+      flex:1;
+      min-width:120px;
+    }
+
+    .error,.success,.warn {
+      border-radius:18px;
+      padding:15px 16px;
+      font-size:14px;
+      line-height:1.55;
+      margin-bottom:14px;
+      display:none;
+    }
+
+    .error,.warn {
+      background:rgba(255,69,58,.10);
+      border:1px solid rgba(255,69,58,.25);
+      color:#ffd0cc;
+    }
+
+    .success {
+      background:rgba(52,199,89,.10);
+      border:1px solid rgba(52,199,89,.25);
+      color:#c8ffd5;
+    }
+
+    .accordion { margin:18px 0; }
+
+    .accordion-header {
+      background:rgba(255,214,10,.08);
+      border:1px solid rgba(255,214,10,.22);
+      padding:14px 16px;
+      border-radius:16px;
+      cursor:pointer;
+      font-weight:800;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+
+    .accordion-arrow {
+      transition:transform .25s ease;
+    }
+
+    .accordion.open .accordion-arrow {
+      transform:rotate(180deg);
+    }
+
+    .accordion-content {
+      max-height:0;
+      overflow:hidden;
+      transition:max-height .35s ease, opacity .25s ease, margin-top .25s ease;
+      opacity:0;
+      background:var(--card-2);
+      border-radius:16px;
+      border:1px solid var(--border);
+    }
+
+    .accordion.open .accordion-content {
+      max-height:900px;
+      opacity:1;
+      margin-top:10px;
+      overflow-y:auto;
+    }
+
+    .accordion-inner {
+      padding:14px;
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    .consent-main {
+      margin-top:12px;
+      padding:14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      transition:.25s;
+    }
+
+    .consent-main input {
+      transform:scale(1.2);
+      accent-color:var(--green);
+    }
+
+    .consent-main.active {
+      background:rgba(52,199,89,.14);
+      border-color:rgba(52,199,89,.55);
+      color:#c8ffd5;
+    }
+
+    .review {
+      background:var(--card-2);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:16px;
+      line-height:1.7;
+    }
+
+    .car-grid {
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+    }
+
+    .car-card {
+      border:1px solid var(--border);
+      background:var(--card-2);
+      border-radius:22px;
+      padding:16px;
+      cursor:pointer;
+    }
+
+    .car-card.active {
+      border-color:rgba(52,199,89,.9);
+      background:rgba(52,199,89,.16);
+      box-shadow:0 0 0 2px rgba(52,199,89,.25);
+    }
+
+    .car-name {
+      font-size:18px;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .car-price {
+      color:#ffe767;
+      font-weight:800;
+    }
+
+    .hidden { display:none!important; }
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="brand">
+      <span class="brand-badge"></span>
+      <span>Сервис подключения • Партнёрский кабинет</span>
+    </div>
+    <h1>Подключение к сервису</h1>
+    <p>Заполните анкету, загрузите документы и отправьте заявку менеджеру прямо внутри Telegram.</p>
+  </div>
+
+  <div class="progress-card">
+    <div class="progress-top">
+      <span id="progressText">Шаг 1 из 8</span>
+      <span id="progressPercent">12%</span>
+    </div>
+    <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+  </div>
+
+  <div class="card">
+    <div id="errorBox" class="error"></div>
+    <div id="successBox" class="success"></div>
+
+    <div id="step1" class="step">
+      
+
+      <h2 class="step-title">Личные данные</h2>
+      <p class="step-subtitle">Укажите базовую информацию для связи.</p>
+
+      <div class="field">
+        <label>Имя</label>
+        <input id="name" class="input" type="text" placeholder="Например: Иван">
+      </div>
+
+      <div class="field">
+        <label>Телефон</label>
+        <input id="phone" class="input" type="text" placeholder="+7...">
+      </div>
+
+      <div class="field">
+        <label>Город</label>
+        <input id="city" class="input" type="text" placeholder="Например: Москва">
+      </div>
+
+      <div class="accordion" id="consentAccordion">
+        <div class="accordion-header" onclick="toggleConsent()">
+          <span>🔐 Согласие на обработку персональных данных</span>
+          <span class="accordion-arrow">⌄</span>
+        </div>
+
+        <div class="accordion-content">
+          <div class="accordion-inner">
+            <b>СОГЛАСИЕ НА ОБРАБОТКУ ПЕРСОНАЛЬНЫХ ДАННЫХ</b><br><br>
+            Нажимая кнопку «Согласен», вы даёте своё информированное, добровольное и осознанное согласие индивидуальному предпринимателю Зиявдиновой Салтанат Зиявдиновне (ИНН 302302687568, ОГРНИП 324300000015096) на обработку ваших персональных данных с целью подключения к сервису Яндекс Go через партнёрский таксопарк №042.<br><br>
+            <b>Оператор:</b><br>
+            ИП Зиявдинова Салтанат Зиявдиновна<br>
+            ИНН: 302302687568<br>
+            ОГРНИП: 324300000015096<br>
+            Telegram: @OG_OYZI<br><br>
+            <b>Данные:</b><br>
+            — паспортные данные;<br>
+            — данные водительского удостоверения;<br>
+            — контактные данные;<br>
+            — сведения об автомобиле;<br>
+            — документы автомобиля, включая СТС;<br>
+            — иные данные, предоставленные добровольно.<br><br>
+            Данные используются только для регистрации и подключения к сервису Яндекс Go. После проверки документы удаляются.
+          </div>
+        </div>
+      </div>
+
+      <label class="consent-main" id="agreeMainBox">
+        <input type="checkbox" id="agreeMain" onchange="toggleAgreeMain()">
+        <span>Я принимаю условия обработки персональных данных</span>
+      </label>
+
+      <div class="actions">
+        <button class="btn-primary" onclick="nextStep(2)">Продолжить</button>
+      </div>
+    </div>
+
+    <div id="step2" class="step hidden">
+      <h2 class="step-title">Гражданство</h2>
+      <p class="step-subtitle">Выберите гражданство из списка.</p>
+
+      <div class="field">
+        <label>Гражданство</label>
+        <select id="citizenship" class="select">
+          <option value="">Выберите</option>
+          <option>Россия</option>
+          <option>Узбекистан</option>
+          <option>Таджикистан</option>
+          <option>Кыргызстан</option>
+          <option>Другое</option>
+        </select>
+      </div>
+
+      <div class="actions">
+        <button class="btn-secondary" onclick="prevStep(1)">Назад</button>
+        <button class="btn-primary" onclick="nextStep(3)">Продолжить</button>
+      </div>
+    </div>
+
+    <div id="step3" class="step hidden">
+      <h2 class="step-title">Паспорт</h2>
+      <p class="step-subtitle">Загрузите фото лицевой стороны паспорта и страницы с пропиской.</p>
+
+      <div class="field">
+        <label>Паспорт — лицевая сторона</label>
+        <input id="passport_front" class="filebox" type="file" accept="image/*">
+      </div>
+
+      <div class="field">
+        <label>Паспорт — прописка</label>
+        <input id="passport_registration" class="filebox" type="file" accept="image/*">
+      </div>
+
+      <div class="actions">
+        <button class="btn-secondary" onclick="prevStep(2)">Назад</button>
+        <button class="btn-primary" onclick="nextStep(4)">Продолжить</button>
+      </div>
+    </div>
+
+    <div id="step4" class="step hidden">
+      <h2 class="step-title">Направление</h2>
+      <p class="step-subtitle">Выберите подходящий формат.</p>
+
+      <div class="field">
+        <label>Направление</label>
+        <select id="job" class="select">
+          <option value="">Выберите</option>
+          <option>Водитель (Аренда)</option>
+          <option>Курьер</option>
+          <option>Водитель (на своей машине)</option>
+        </select>
+      </div>
+
+      <div class="actions">
+        <button class="btn-secondary" onclick="prevStep(3)">Назад</button>
+        <button class="btn-primary" onclick="goAfterJob()">Продолжить</button>
+      </div>
+    </div>
+
+    <div id="step5" class="step hidden">
+      <h2 class="step-title">Водительское удостоверение</h2>
+      <p class="step-subtitle">Укажите страну прав и загрузите фото.</p>
+
+      <div class="field">
+        <label>Страна водительского удостоверения</label>
+        <select id="license_country" class="select" onchange="checkLicenseWarning()">
+          <option value="">Выберите</option>
+          <option>Россия</option>
+          <option>Узбекистан</option>
+          <option>Таджикистан</option>
+          <option>Кыргызстан</option>
+          <option>Другое</option>
+        </select>
+      </div>
+
+      <div id="licenseWarn" class="warn">
+        ⚠️ Если водительское удостоверение не РФ, по своим правам зарегистрироваться в Яндекс Про не получится. Но вы можете продолжить заявку для консультации.
+      </div>
+
+      <div class="field">
+        <label>Права — лицевая сторона</label>
+        <input id="driver_license_front" class="filebox" type="file" accept="image/*">
+      </div>
+
+      <div class="field">
+        <label>Права — обратная сторона</label>
+        <input id="driver_license_back" class="filebox" type="file" accept="image/*">
+      </div>
+
+      <div class="actions">
+        <button class="btn-secondary" onclick="prevStep(4)">Назад</button>
+        <button class="btn-primary" onclick="nextStep(6)">Продолжить</button>
+      </div>
+    </div>
+
+    <div id="stepOwnCar" class="step hidden">
+      <h2 class="step-title">Свой автомобиль</h2>
+      <p class="step-subtitle">Укажите номер регистрации и загрузите СТС + права с двух сторон.</p>
+
+      <div class="field">
+        <label>Номер телефона для регистрации</label>
+        <input id="registration_phone" class="input" type="text" placeholder="+7...">
+      </div>
+
+      <div class="field">
+        <label>СТС — лицевая сторона</label>
+        <input id="sts_front" class="filebox" type="file" accept="image/*">
+      </div>
+
+      <div class="field">
+        <label>СТС — обратная сторона</label>
+        <input id="sts_back" class="filebox" type="file" accept="image/*">
+      </div>
+
+      <div class="field">
+        <label>Права — лицевая сторона</label>
+        <input id="own_driver_license_front" class="filebox" type="file" accept="image/*">
+      </div>
+
+      <div class="field">
+        <label>Права — обратная сторона</label>
+        <input id="own_driver_license_back" class="filebox" type="file" accept="image/*">
+      </div>
+
+      <div class="actions">
+        <button class="btn-secondary" onclick="prevStep(4)">Назад</button>
+        <button class="btn-primary" onclick="goFromOwnCar()">Продолжить</button>
+      </div>
+    </div>
+
+    <div id="step6" class="step hidden">
+      <h2 class="step-title">Выбор автомобиля</h2>
+      <p class="step-subtitle">Выберите вариант автомобиля для подключения.</p>
+
+      <div class="car-grid">
+        <div class="car-card" data-car="LADA GRANTA" data-price="1700₽" onclick="selectCar(this)">
+          <div class="car-name">LADA GRANTA</div>
+          <div class="car-price">1700₽</div>
+        </div>
+
+        <div class="car-card" data-car="VOLKSWAGEN POLO" data-price="1900₽" onclick="selectCar(this)">
+          <div class="car-name">VOLKSWAGEN POLO</div>
+          <div class="car-price">1900₽</div>
+        </div>
+
+        <div class="car-card" data-car="OMODA S5" data-price="2300₽" onclick="selectCar(this)">
+          <div class="car-name">OMODA S5</div>
+          <div class="car-price">2300₽</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-secondary" onclick="prevStep(5)">Назад</button>
+        <button class="btn-primary" onclick="nextStep(7)">Продолжить</button>
+      </div>
+    </div>
+
+    <div id="step7" class="step hidden">
+      <h2 class="step-title">Комментарий</h2>
+      <p class="step-subtitle">Можно добавить пожелания или оставить поле пустым.</p>
+
+      <div class="field">
+        <label>Комментарий</label>
+        <textarea id="comment" class="textarea" placeholder="Комментарий"></textarea>
+      </div>
+
+      <div class="actions">
+        <button class="btn-secondary" onclick="backFromComment()">Назад</button>
+        <button class="btn-primary" onclick="buildReview()">Продолжить</button>
+      </div>
+    </div>
+
+    <div id="step8" class="step hidden">
+      <h2 class="step-title">Подтверждение</h2>
+      <p class="step-subtitle">Проверьте данные перед отправкой.</p>
+
+      <div id="reviewBox" class="review"></div>
+
+      <div class="warn" style="display:block; margin-top:15px;">
+        ⏳ После нажатия кнопки дождитесь уведомления о загрузке данных.
+      </div>
+
+      <div class="actions">
+        <button class="btn-secondary" onclick="prevStep(7)">Назад</button>
+        <button id="submitBtn" class="btn-primary" onclick="submitForm()">Отправить заявку</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.expand();
+
+  let selectedCar = "";
+  let selectedPrice = "";
+
+  function showError(text) {
+    const box = document.getElementById("errorBox");
+    box.style.display = "block";
+    box.textContent = text;
+    document.getElementById("successBox").style.display = "none";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function clearError() {
+    const box = document.getElementById("errorBox");
+    box.style.display = "none";
+    box.textContent = "";
+  }
+
+  function showSuccess(text) {
+    const box = document.getElementById("successBox");
+    box.style.display = "block";
+    box.textContent = text;
+    document.getElementById("errorBox").style.display = "none";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function updateProgress(step) {
+    const percent = Math.round((step / 8) * 100);
+    document.getElementById("progressText").textContent = `Шаг ${step} из 8`;
+    document.getElementById("progressPercent").textContent = `${percent}%`;
+    document.getElementById("barFill").style.width = `${percent}%`;
+  }
+
+  function showStep(step) {
+    document.querySelectorAll(".step").forEach(el => el.classList.add("hidden"));
+    document.getElementById(`step${step}`).classList.remove("hidden");
+    updateProgress(step);
+    clearError();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function showOwnCarStep() {
+    document.querySelectorAll(".step").forEach(el => el.classList.add("hidden"));
+    document.getElementById("stepOwnCar").classList.remove("hidden");
+    clearError();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function nextStep(step) {
+    if (!validateCurrentStep(step - 1)) return;
+    showStep(step);
+  }
+
+  function prevStep(step) {
+    showStep(step);
+  }
+
+  function toggleConsent() {
+    document.getElementById("consentAccordion").classList.toggle("open");
+  }
+
+  function toggleAgreeMain() {
+    const checkbox = document.getElementById("agreeMain");
+    const box = document.getElementById("agreeMainBox");
+
+    if (checkbox.checked) box.classList.add("active");
+    else box.classList.remove("active");
+  }
+
+  function validateCurrentStep(step) {
+    if (step === 1) {
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const city = document.getElementById("city").value.trim();
+
+      if (!name || !phone || !city) {
+        showError("Заполните имя, телефон и город.");
+        return false;
+      }
+
+      if (!document.getElementById("agreeMain").checked) {
+        showError("Подтвердите согласие на обработку персональных данных.");
+        return false;
+      }
+    }
+
+    if (step === 2) {
+      const citizenship = document.getElementById("citizenship").value;
+      if (!citizenship) {
+        showError("Выберите гражданство.");
+        return false;
+      }
+    }
+
+    if (step === 3) {
+      const pf = document.getElementById("passport_front").files[0];
+      const pr = document.getElementById("passport_registration").files[0];
+
+      if (!pf || !pr) {
+        showError("Загрузите оба фото паспорта.");
+        return false;
+      }
+    }
+
+    if (step === 4) {
+      const job = document.getElementById("job").value;
+      if (!job) {
+        showError("Выберите направление.");
+        return false;
+      }
+    }
+
+    if (step === 5) {
+      const licenseCountry = document.getElementById("license_country").value;
+      const lf = document.getElementById("driver_license_front").files[0];
+      const lb = document.getElementById("driver_license_back").files[0];
+
+      if (!licenseCountry || !lf || !lb) {
+        showError("Заполните страну прав и загрузите обе стороны водительского удостоверения.");
+        return false;
+      }
+    }
+
+    if (step === 6) {
+      if (!selectedCar || !selectedPrice) {
+        showError("Выберите автомобиль.");
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  function goAfterJob() {
+    const job = document.getElementById("job").value;
+    if (!validateCurrentStep(4)) return;
+
+    if (job === "Водитель (Аренда)") {
+      showStep(5);
+    } else if (job === "Водитель (на своей машине)") {
+      showOwnCarStep();
+    } else {
+      selectedCar = "Не требуется";
+      selectedPrice = "Не требуется";
+      showStep(7);
+    }
+  }
+
+  function goFromOwnCar() {
+    const registrationPhone = document.getElementById("registration_phone").value.trim();
+    const stsFront = document.getElementById("sts_front").files[0];
+    const stsBack = document.getElementById("sts_back").files[0];
+    const licenseFront = document.getElementById("own_driver_license_front").files[0];
+    const licenseBack = document.getElementById("own_driver_license_back").files[0];
+
+    if (!registrationPhone || !stsFront || !stsBack || !licenseFront || !licenseBack) {
+      showError("Укажите номер регистрации и загрузите СТС + права с двух сторон.");
+      return;
+    }
+
+    selectedCar = "Своя машина";
+    selectedPrice = "Не требуется";
+    showStep(7);
+  }
+
+  function checkLicenseWarning() {
+    const value = document.getElementById("license_country").value;
+    const warn = document.getElementById("licenseWarn");
+    warn.style.display = value && value !== "Россия" ? "block" : "none";
+  }
+
+  function selectCar(card) {
+    document.querySelectorAll(".car-card").forEach(c => c.classList.remove("active"));
+    card.classList.add("active");
+    selectedCar = card.dataset.car;
+    selectedPrice = card.dataset.price;
+    clearError();
+  }
+
+  function backFromComment() {
+    const job = document.getElementById("job").value;
+
+    if (job === "Водитель (Аренда)") showStep(6);
+    else if (job === "Водитель (на своей машине)") showOwnCarStep();
+    else showStep(4);
+  }
+
+  function buildReview() {
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const registrationPhone = document.getElementById("registration_phone")?.value.trim() || "Не указано";
+    const city = document.getElementById("city").value.trim();
+    const citizenship = document.getElementById("citizenship").value;
+    const job = document.getElementById("job").value;
+    const licenseCountry = job === "Водитель (Аренда)"
+      ? document.getElementById("license_country").value
+      : "Не требуется";
+    const comment = document.getElementById("comment").value.trim() || "Нет";
+
+    document.getElementById("reviewBox").innerHTML = `
+      <b>Имя:</b> ${name}<br>
+      <b>Телефон:</b> ${phone}<br>
+      ${job === "Водитель (на своей машине)" ? `<b>Номер для регистрации:</b> ${registrationPhone}<br>` : ""}
+      <b>Город:</b> ${city}<br>
+      <b>Гражданство:</b> ${citizenship}<br>
+      <b>Направление:</b> ${job}<br>
+      ${job === "Водитель (Аренда)" ? `<b>Страна прав:</b> ${licenseCountry}<br>` : ""}
+      <b>Автомобиль:</b> ${selectedCar}<br>
+      <b>Стоимость:</b> ${selectedPrice}<br>
+      <b>Комментарий:</b> ${comment}
+    `;
+
+    showStep(8);
+  }
+
+  async function submitForm() {
+    clearError();
+
+    const submitBtn = document.getElementById("submitBtn");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "⏳ Отправка...";
+
+    const job = document.getElementById("job").value;
+    const formData = new FormData();
+    const user = tg.initDataUnsafe?.user || {};
+
+    formData.append("name", document.getElementById("name").value.trim());
+    formData.append("phone", document.getElementById("phone").value.trim());
+    formData.append("city", document.getElementById("city").value.trim());
+    formData.append("citizenship", document.getElementById("citizenship").value);
+    formData.append("job", job);
+    formData.append("car", selectedCar || "Не требуется");
+    formData.append("price", selectedPrice || "Не требуется");
+    formData.append("comment", document.getElementById("comment").value.trim() || "Нет");
+
+    if (job === "Водитель (Аренда)") {
+      formData.append("license_country", document.getElementById("license_country").value);
+
+      const driverFront = document.getElementById("driver_license_front").files[0];
+      const driverBack = document.getElementById("driver_license_back").files[0];
+
+      if (driverFront) formData.append("driver_license_front", driverFront);
+      if (driverBack) formData.append("driver_license_back", driverBack);
+    } else {
+      formData.append("license_country", "Не требуется");
+    }
+
+    if (job === "Водитель (на своей машине)") {
+      formData.append("registration_phone", document.getElementById("registration_phone").value.trim());
+
+      const stsFront = document.getElementById("sts_front").files[0];
+      const stsBack = document.getElementById("sts_back").files[0];
+      const ownLicenseFront = document.getElementById("own_driver_license_front").files[0];
+      const ownLicenseBack = document.getElementById("own_driver_license_back").files[0];
+
+      if (stsFront) formData.append("sts_front", stsFront);
+      if (stsBack) formData.append("sts_back", stsBack);
+      if (ownLicenseFront) formData.append("own_driver_license_front", ownLicenseFront);
+      if (ownLicenseBack) formData.append("own_driver_license_back", ownLicenseBack);
+    }
+
+    formData.append("tg_user_id", user.id || "");
+    formData.append("tg_username", user.username || "");
+    formData.append("tg_full_name", [user.first_name, user.last_name].filter(Boolean).join(" "));
+
+    const passportFront = document.getElementById("passport_front").files[0];
+    const passportRegistration = document.getElementById("passport_registration").files[0];
+
+    if (passportFront) formData.append("passport_front", passportFront);
+    if (passportRegistration) formData.append("passport_registration", passportRegistration);
+
+    try {
+      const res = await fetch("/submit", { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (!data.ok) {
+        showError(data.error || "Не удалось отправить заявку.");
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Отправить заявку";
+        return;
+      }
+
+      showSuccess("Заявка успешно отправлена. Менеджер скоро свяжется с вами.");
+
+      setTimeout(() => {
+        if (tg && tg.close) tg.close();
+      }, 1600);
+    } catch (e) {
+      showError("Ошибка соединения с сервером.");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Отправить заявку";
+    }
+  }
+
+  showStep(1);
+</script>
+</body>
+</html>
