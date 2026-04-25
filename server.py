@@ -2,8 +2,9 @@ import os
 import requests
 from flask import Flask, request, jsonify, send_from_directory
 from datetime import datetime
+from PIL import Image
 
-BOT_TOKEN = "8766614802:AAEFEF8EkszbjcvAIjGT8m0GHCfEQK6Cwe4"
+BOT_TOKEN = "ВСТАВЬ_СЮДА_НОВЫЙ_ТОКЕН"
 ADMIN_ID = 6426208853
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -13,7 +14,27 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 app = Flask(__name__, static_folder="static", static_url_path="/static")
 
 
-def telegram_send_message(text: str, tg_user_id: str = ""):
+def compress_image(path):
+    try:
+        img = Image.open(path)
+        img.thumbnail((1280, 1280))
+
+        base, _ = os.path.splitext(path)
+        compressed_path = base + "_compressed.jpg"
+
+        img.convert("RGB").save(
+            compressed_path,
+            "JPEG",
+            quality=70,
+            optimize=True
+        )
+
+        return compressed_path
+    except Exception:
+        return path
+
+
+def telegram_send_message(text: str):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
     requests.post(
@@ -24,49 +45,24 @@ def telegram_send_message(text: str, tg_user_id: str = ""):
         },
         timeout=30
     )
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-
-    keyboard = {
-        "inline_keyboard": [
-            [{"text": "💬 Написать клиенту", "url": f"tg://user?id={tg_user_id}"}],
-            [{"text": "📞 Обратная связь", "url": "https://t.me/OG_OYZI"}]
-        ]
-    }
-
-    requests.post(
-        url,
-        json={
-            "chat_id": ADMIN_ID,
-            "text": text,
-            "reply_markup": keyboard
-        },
-        timeout=30
-    )
 
 
-from PIL import Image
-
-def compress_image(input_path, output_path, max_size=1280, quality=70):
-    try:
-        img = Image.open(input_path)
-
-        # уменьшаем размер
-        img.thumbnail((max_size, max_size))
-
-        # сохраняем с сжатием
-        img.save(output_path, format="JPEG", quality=quality, optimize=True)
-
-        return output_path
-    except:
-        return input_path
+def telegram_send_photo(filepath: str, caption: str = ""):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
 
-    with open(filepath, "rb") as f:
+    compressed_path = compress_image(filepath)
+
+    with open(compressed_path, "rb") as f:
         requests.post(
             url,
-            data={"chat_id": ADMIN_ID, "caption": caption},
-            files={"photo": f},
-            timeout=60
+            data={
+                "chat_id": ADMIN_ID,
+                "caption": caption
+            },
+            files={
+                "photo": f
+            },
+            timeout=30
         )
 
 
@@ -119,6 +115,7 @@ def submit():
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
         safe_name = name.replace(" ", "_")
         safe_phone = phone.replace("+", "").replace(" ", "").replace("-", "")
+
         user_folder = f"{safe_name}_{safe_phone}_{timestamp}"
         user_path = os.path.join(UPLOAD_DIR, user_folder)
         os.makedirs(user_path, exist_ok=True)
@@ -162,7 +159,7 @@ def submit():
             f"💼 Направление: {job}\n"
             f"{f'🪪 Страна водительского удостоверения: {license_country}\\n' if job == 'Водитель (Аренда)' else ''}"
             f"🚗 Автомобиль: {car}\n"
-            f"💰 Стоимость: {price}\n"
+            f"{f'💰 Стоимость: {price}\\n' if job != 'Водитель (на своей машине)' else ''}"
             f"💬 Комментарий: {comment}\n\n"
             f"👤 Username: @{tg_username}\n"
             f"🆔 Telegram ID: {tg_user_id if tg_user_id else 'не передан'}\n"
@@ -170,7 +167,7 @@ def submit():
             f"📁 Папка с файлами: {user_folder}"
         )
 
-        telegram_send_message(text, tg_user_id)
+        telegram_send_message(text)
 
         files_to_send = [
             (passport_front_path, "Паспорт — лицевая сторона"),
@@ -193,13 +190,12 @@ def submit():
 
         for path, caption in files_to_send:
             if path:
-                compressed = compress_image(passport_front_path, passport_front_path)
-telegram_send_photo(compressed, ...)
+                telegram_send_photo(path, f"{caption}\n{name}")
 
         return jsonify({
-    "ok": True,
-    "message": "Заявка успешно отправлена"
-})
+            "ok": True,
+            "message": "Заявка успешно отправлена"
+        })
 
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
@@ -207,4 +203,5 @@ telegram_send_photo(compressed, ...)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
+    app.run(host="0.0.0.0", port=port)
     app.run(host="0.0.0.0", port=port)
