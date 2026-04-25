@@ -796,16 +796,16 @@
 
     document.getElementById("reviewBox").innerHTML = `
       <b>Имя:</b> ${name}<br>
-      <b>Телефон:</b> ${phone}<br>
-      ${job === "Водитель (на своей машине)" ? `<b>Номер для регистрации:</b> ${registrationPhone}<br>` : ""}
-      <b>Город:</b> ${city}<br>
-      <b>Гражданство:</b> ${citizenship}<br>
-      <b>Направление:</b> ${job}<br>
-      ${job === "Водитель (Аренда)" ? `<b>Страна прав:</b> ${licenseCountry}<br>` : ""}
-      <b>Автомобиль:</b> ${selectedCar}<br>
-      <b>Стоимость:</b> ${selectedPrice}<br>
-      <b>Комментарий:</b> ${comment}
-    `;
+  <b>Телефон:</b> ${phone}<br>
+  ${job === "Водитель (на своей машине)" ? `<b>Номер для регистрации:</b> ${registrationPhone}<br>` : ""}
+  <b>Город:</b> ${city}<br>
+  <b>Гражданство:</b> ${citizenship}<br>
+  <b>Направление:</b> ${job}<br>
+  ${job === "Водитель (Аренда)" ? `<b>Страна прав:</b> ${licenseCountry}<br>` : ""}
+  <b>Автомобиль:</b> ${selectedCar}<br>
+  ${job === "Водитель (на своей машине)" ? "" : `<b>Стоимость:</b> ${selectedPrice}<br>`}
+  <b>Комментарий:</b> ${comment}
+`;
 
     showStep(8);
   }
