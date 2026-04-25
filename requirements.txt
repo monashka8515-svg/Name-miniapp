@@ -2,3 +2,4 @@ aiogram>=3.4,<4.0
 Flask>=3.0,<4.0
 requests>=2.31,<3.0
 gunicorn
+Pillow
