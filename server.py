@@ -159,7 +159,7 @@ def submit():
             f"💼 Направление: {job}\n"
             f"{f'🪪 Страна водительского удостоверения: {license_country}\\n' if job == 'Водитель (Аренда)' else ''}"
             f"🚗 Автомобиль: {car}\n"
-            f"{f'💰 Стоимость: {price}\\n' if job != 'Водитель (на своей машине)' else ''}"
+            f"{f'💰 Стоимость: {price}\n\n' if job != 'Водитель (на своей машине)' else ''}"
             f"💬 Комментарий: {comment}\n\n"
             f"👤 Username: @{tg_username}\n"
             f"🆔 Telegram ID: {tg_user_id if tg_user_id else 'не передан'}\n"
