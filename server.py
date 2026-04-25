@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from datetime import datetime
 from PIL import Image
 
-BOT_TOKEN = "ВСТАВЬ_СЮДА_НОВЫЙ_ТОКЕН"
+BOT_TOKEN = "8766614802:AAEFEF8EkszbjcvAIjGT8m0GHCfEQK6Cwe4"
 ADMIN_ID = 6426208853
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
