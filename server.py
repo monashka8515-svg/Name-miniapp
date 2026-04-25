@@ -181,7 +181,10 @@ def submit():
             if path:
                 telegram_send_photo(path, f"{caption}\n{name}")
 
-        return jsonify({"ok": True})
+        return jsonify({
+    "ok": True,
+    "message": "Заявка успешно отправлена"
+})
 
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
