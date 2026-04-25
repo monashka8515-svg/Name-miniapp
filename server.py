@@ -44,7 +44,21 @@ def telegram_send_message(text: str, tg_user_id: str = ""):
     )
 
 
-def telegram_send_photo(filepath: str, caption: str = ""):
+from PIL import Image
+
+def compress_image(input_path, output_path, max_size=1280, quality=70):
+    try:
+        img = Image.open(input_path)
+
+        # уменьшаем размер
+        img.thumbnail((max_size, max_size))
+
+        # сохраняем с сжатием
+        img.save(output_path, format="JPEG", quality=quality, optimize=True)
+
+        return output_path
+    except:
+        return input_path
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
 
     with open(filepath, "rb") as f:
@@ -179,7 +193,8 @@ def submit():
 
         for path, caption in files_to_send:
             if path:
-                telegram_send_photo(path, f"{caption}\n{name}")
+                compressed = compress_image(passport_front_path, passport_front_path)
+telegram_send_photo(compressed, ...)
 
         return jsonify({
     "ok": True,
