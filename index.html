@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Подключение</title>
+  <title>Парк 042 — Яндекс Про</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
@@ -114,6 +114,31 @@
 
     .card { padding:20px; }
 
+    .hero-images {
+      margin-bottom:18px;
+    }
+
+    .main-banner {
+      width:100%;
+      border-radius:26px;
+      box-shadow:0 20px 50px rgba(0,0,0,.45);
+      margin-bottom:10px;
+      display:block;
+    }
+
+    .mini-gallery {
+      display:flex;
+      gap:8px;
+    }
+
+    .mini-gallery img {
+      width:100%;
+      border-radius:14px;
+      height:90px;
+      object-fit:cover;
+      background:#2a2f3a;
+    }
+
     .step-title {
       margin:0 0 6px;
       font-size:24px;
@@ -167,7 +192,7 @@
     }
 
     button:disabled {
-      opacity:0.6;
+      opacity:.6;
       cursor:not-allowed;
     }
 
@@ -323,10 +348,10 @@
   <div class="hero">
     <div class="brand">
       <span class="brand-badge"></span>
-      <span>Сервис подключения • Партнёрский кабинет</span>
+      <span>Парк 042 • Яндекс Про • Аренда авто</span>
     </div>
-    <h1>Подключение к сервису</h1>
-    <p>Заполните анкету, загрузите документы и отправьте заявку менеджеру прямо внутри Telegram.</p>
+    <h1>Подключение к Яндекс Про</h1>
+    <p>Оставьте заявку на подключение к Парку 042. Выберите аренду авто, подключение на своём автомобиле или работу курьером.</p>
   </div>
 
   <div class="progress-card">
@@ -342,7 +367,14 @@
     <div id="successBox" class="success"></div>
 
     <div id="step1" class="step">
-      
+      <div class="hero-images">
+        <img src="/banner.jpg" class="main-banner" alt="Парк 042">
+        <div class="mini-gallery">
+          <img src="/car1.jpg" alt="Авто 1">
+          <img src="/car2.jpg" alt="Авто 2">
+          <img src="/car3.jpg" alt="Авто 3">
+        </div>
+      </div>
 
       <h2 class="step-title">Личные данные</h2>
       <p class="step-subtitle">Укажите базовую информацию для связи.</p>
@@ -442,8 +474,8 @@
     </div>
 
     <div id="step4" class="step hidden">
-      <h2 class="step-title">Направление</h2>
-      <p class="step-subtitle">Выберите подходящий формат.</p>
+      <h2 class="step-title">Формат подключения</h2>
+      <p class="step-subtitle">Выберите, как хотите подключиться к Яндекс Про.</p>
 
       <div class="field">
         <label>Направление</label>
@@ -796,16 +828,16 @@
 
     document.getElementById("reviewBox").innerHTML = `
       <b>Имя:</b> ${name}<br>
-  <b>Телефон:</b> ${phone}<br>
-  ${job === "Водитель (на своей машине)" ? `<b>Номер для регистрации:</b> ${registrationPhone}<br>` : ""}
-  <b>Город:</b> ${city}<br>
-  <b>Гражданство:</b> ${citizenship}<br>
-  <b>Направление:</b> ${job}<br>
-  ${job === "Водитель (Аренда)" ? `<b>Страна прав:</b> ${licenseCountry}<br>` : ""}
-  <b>Автомобиль:</b> ${selectedCar}<br>
-  ${job === "Водитель (на своей машине)" ? "" : `<b>Стоимость:</b> ${selectedPrice}<br>`}
-  <b>Комментарий:</b> ${comment}
-`;
+      <b>Телефон:</b> ${phone}<br>
+      ${job === "Водитель (на своей машине)" ? `<b>Номер для регистрации:</b> ${registrationPhone}<br>` : ""}
+      <b>Город:</b> ${city}<br>
+      <b>Гражданство:</b> ${citizenship}<br>
+      <b>Направление:</b> ${job}<br>
+      ${job === "Водитель (Аренда)" ? `<b>Страна прав:</b> ${licenseCountry}<br>` : ""}
+      <b>Автомобиль:</b> ${selectedCar}<br>
+      ${job === "Водитель (на своей машине)" ? "" : `<b>Стоимость:</b> ${selectedPrice}<br>`}
+      <b>Комментарий:</b> ${comment}
+    `;
 
     showStep(8);
   }
@@ -867,7 +899,7 @@
     if (passportRegistration) formData.append("passport_registration", passportRegistration);
 
     try {
-      const res = await fetch("/submit", { method: "POST", body: formData });
+      const res = await fetch("/submit", { method:"POST", body:formData });
       const data = await res.json();
 
       if (!data.ok) {
